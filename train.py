@@ -1,5 +1,7 @@
+import os
 import torch
 import config
+from utils import save_checkpoint, load_checkpoint
 from tqdm import tqdm
 from dataset import CCDataset, collate_fn
 from torchvision.models.detection import maskrcnn_resnet50_fpn
@@ -12,7 +14,7 @@ def train_one_epoch(loader, model, optimizer, device):
     for batch_idx, (images, targets) in enumerate(loop):
         images = list(image.to(device) for image in images)
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
-        
+
         loss_dict = model(images, targets)
         losses = sum(loss for loss in loss_dict.values())
 
@@ -21,6 +23,7 @@ def train_one_epoch(loader, model, optimizer, device):
         optimizer.step()
 
         print(f"Total loss: {losses.item()}")
+
 
 def main():
     train_dataset = CCDataset(mode='train')
@@ -54,8 +57,12 @@ def main():
     optimizer = torch.optim.AdamW(params=model.parameters(),
                                   lr=config.LEARNING_RATE,
                                   weight_decay=config.WEIGHT_DECAY)
-    
+
     model.train()
+
+    if config.LOAD_MODEL and config.CHECKPOINT_FILE in os.listdir():
+        load_checkpoint(torch.load(config.CHECKPOINT_FILE),
+                        model, optimizer, config.LEARNING_RATE)
 
     for epoch in range(config.NUM_EPOCHS):
         print(f"Epoch: {epoch}")
@@ -67,6 +74,7 @@ def main():
                 "optimizer": optimizer.state_dict(),
             }
             save_checkpoint(checkpoint, filename=f"mask_rcnn_{epoch}.pth.tar")
+
 
 if __name__ == "__main__":
     main()
