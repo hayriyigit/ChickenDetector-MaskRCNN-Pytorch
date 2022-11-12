@@ -1,6 +1,7 @@
 import os
 import cv2
 import numpy as np
+import config
 from pycocotools.coco import COCO
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
@@ -8,14 +9,14 @@ from tqdm import tqdm
 class CCDataset(Dataset):
   def __init__(self, mode = 'train'):
     if mode == 'train':
-      self.dataset_path = TRAIN_DIR
-      ann_path = os.path.join(TRAIN_DIR, '_annotations.coco.json')
+      self.dataset_path = config.TRAIN_DIR
+      ann_path = os.path.join(config.TRAIN_DIR, '_annotations.coco.json')
     if mode == 'valid':
-      self.dataset_path = VALID_DIR
-      ann_path = os.path.join(VALID_DIR, '_annotations.coco.json')
+      self.dataset_path = config.VALID_DIR
+      ann_path = os.path.join(config.VALID_DIR, '_annotations.coco.json')
     if mode == 'test':
-      self.dataset_path = TEST_DIR
-      ann_path = os.path.join(TEST_DIR, '_annotations.coco.json')
+      self.dataset_path = config.TEST_DIR
+      ann_path = os.path.join(config.TEST_DIR, '_annotations.coco.json')
     
     self.coco = COCO(ann_path)
     self.cat_ids = self.coco.getCatIds()
@@ -32,7 +33,7 @@ class CCDataset(Dataset):
             mask = self.coco.annToMask(ann)
             masks.append(mask)
 
-      return np.array(masks)
+      return masks
 
   def get_boxes(self, masks):
       num_objs = len(masks)
@@ -49,11 +50,16 @@ class CCDataset(Dataset):
       img_info = self.coco.loadImgs([index])[0]
       image = cv2.imread(os.path.join(self.dataset_path,
                                     img_info['file_name']))
-      image = cv2.resize(image, IMAGE_SIZE, cv2.INTER_LINEAR)
-      image = image.transpose(2,0,1) # [C, H, W]
+      masks = self.get_masks(index)
+
+      if self.augmentation:
+        augmented = self.augmentation(image=image, masks=masks)
+        image, masks = augmented['image'], augmented['masks']
+
+      image = image.transpose(2,0,1) 
 
       # Load masks
-      masks = self.get_masks(index)
+      masks = np.array(masks)
       boxes = self.get_boxes(masks)
 
       # Create target dict
