@@ -30,8 +30,8 @@ def train_one_epoch(loader, model, optimizer, device):
 def validate(loader, model, optimizer, device):
     global best_vloss
     loop = tqdm(loader)
-    model.train()
     running_vloss = 0
+    
     for batch_idx, (images, targets) in enumerate(loop):
         images = list(image.to(device) for image in images)
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]

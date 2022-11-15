@@ -21,7 +21,7 @@ def save_checkpoint(state, filename="mask_rcnn.pth.tar"):
 
 
 def predict_single_frame(frame, model):
-    images = cv2.resize(frame, config.IMAGE_SIZE, cv2.INTER_LINEAR)
+    images = cv2.resize(frame, config.IMAGE_SIZE, cv2.INTER_LINEAR)/255.
     images = torch.as_tensor(images, dtype=torch.float32).unsqueeze(0)
     images = images.swapaxes(1, 3).swapaxes(2, 3)
     images = list(image.to(config.DEVICE) for image in images)
@@ -30,29 +30,29 @@ def predict_single_frame(frame, model):
         pred = model(images)
 
     im = images[0].swapaxes(0, 2).swapaxes(
-        0, 1).detach().cpu().numpy().astype(np.uint8)
-    im2 = np.zeros_like(im).astype(np.uint8)
+        0, 1).detach().cpu().numpy().astype(np.float32)
+    im2 = np.zeros_like(im).astype(np.float32)
     for i in range(len(pred[0]['masks'])):
         msk = pred[0]['masks'][i, 0].detach().cpu().numpy()
         scr = pred[0]['scores'][i].detach().cpu().numpy()
         box = pred[0]['boxes'][i].detach().cpu().numpy()
 
-        if scr > 0.87:
+        if scr > 0.9:
             cv2.rectangle(im, (int(box[0]), int(box[1])),
                           (int(box[2]), int(box[3])), (0, 0, 1), 2)
             cv2.putText(im, "{0:.2f}%".format(scr*100), (int(box[0]+5), int(box[1])+15), cv2.FONT_HERSHEY_SIMPLEX,
                         0.5, (0, 0, 1), 2, cv2.LINE_AA)
-            im2[:, :, 0][msk > 0.87] = np.random.randint(0,255)
-            im2[:, :, 1][msk > 0.87] = np.random.randint(0,255)
-            im2[:, :, 2][msk > 0.87] = np.random.randint(0,255)
+            im2[:, :, 0][msk > 0.8] = np.random.uniform(0,1)
+            im2[:, :, 1][msk > 0.8] = np.random.uniform(0,1)
+            im2[:, :, 2][msk > 0.8] = np.random.uniform(0,1)
 
-    return cv2.addWeighted(im, 0.8, im2, 0.2,0)
+    return (cv2.addWeighted(im, 0.8, im2, 0.2,0)*255).astype(np.uint8)
 
 
 def predict_video(input, output, model):
     cap = cv2.VideoCapture(input)
     out = cv2.VideoWriter(output, cv2.VideoWriter_fourcc(
-        'M', 'P', '4', 'V'), 60, (640, 640))
+        'M', 'P', '4', 'V'), 60, (1152, 648))
     model.train(False)
 
     if (cap.isOpened() == False):

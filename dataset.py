@@ -7,7 +7,7 @@ from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 
 class CCDataset(Dataset):
-  def __init__(self, mode = 'train'):
+  def __init__(self, mode = 'train', augmentation=None):
     if mode == 'train':
       self.dataset_path = config.TRAIN_DIR
       ann_path = os.path.join(config.TRAIN_DIR, '_annotations.coco.json')
@@ -56,7 +56,7 @@ class CCDataset(Dataset):
         augmented = self.augmentation(image=image, masks=masks)
         image, masks = augmented['image'], augmented['masks']
 
-      image = image.transpose(2,0,1) 
+      image = image.transpose(2,0,1)/255.
 
       # Load masks
       masks = np.array(masks)
