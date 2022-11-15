@@ -5,7 +5,7 @@ I have to count all the chickens every day to check if they are all in the henco
 You can find the annotation file, named `_annotations.coco.json`, in the train folder.
 
 
-**Dataset**: https://universe.roboflow.com/training-kuvo9/chicken-counter
+**Dataset**: https://universe.roboflow.com/hayri-yigit/chicken-counter
 
 **Checkpoint** (1152x648): https://drive.google.com/file/d/1OT6DFILdoE2n06gSkMWnD6b3r16Q80Ey
 
