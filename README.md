@@ -6,6 +6,7 @@ You can find the annotation file, named `_annotations.coco.json`, in the train f
 
 
 **Dataset**: https://universe.roboflow.com/training-kuvo9/chicken-counter
+
 **Checkpoint** (1152x648): https://drive.google.com/file/d/1OT6DFILdoE2n06gSkMWnD6b3r16Q80Ey
 
 ## **Sample Result:**
