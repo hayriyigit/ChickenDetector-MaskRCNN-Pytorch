@@ -9,5 +9,7 @@ You can find the annotation file, named `_annotations.coco.json`, in the train f
 
 **Checkpoint** (1152x648): https://drive.google.com/file/d/1OT6DFILdoE2n06gSkMWnD6b3r16Q80Ey
 
+**Try on Kaggle**: https://www.kaggle.com/code/hayriyigit/chicken-detection-segmentation-maskrcnn-pytorch 
+
 ## **Sample Result:**
 ![SampleVideo](https://github.com/hayriyigit/ChickenDetector-MaskRCNN-Pytorch/blob/main/asset/result.gif)
